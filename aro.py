@@ -3,24 +3,18 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Load datasets (using recommended datasets from NASA's SEDAC and other sources)
-# Replace the URLs below with paths to the actual datasets
+# Use local file paths after uploading the datasets
+gii_file_path = "gender_inequality_index.csv"  # Update with the actual uploaded file path
+climate_vulnerability_file_path = "climate_vulnerability_index.csv"  # Update with the actual uploaded file path
 
-# Load gender inequality index data from NASA SEDAC
-gii_file_path = "gender_inequality_index.csv"  # Update with actual path to your dataset
+# Load datasets
 gii_df = pd.read_csv(gii_file_path)
-
-# Load climate vulnerability index data from NASA SEDAC
-climate_vulnerability_file_path = "climate_vulnerability_index.csv"  # Update with actual path to your dataset
 climate_vulnerability_df = pd.read_csv(climate_vulnerability_file_path)
 
 # Merge datasets on country codes
 df = pd.merge(gii_df, climate_vulnerability_df, left_on="Country Code", right_on="Country Code", how="inner")
 
-# Filter the data to match the context of gender inequality and climate vulnerability
-# Assume 'Gender Inequality Index' and 'Climate Vulnerability Index' are columns in the respective datasets
-
-# Streamlit app layout
+# Streamlit app layout and visualization (same as before)
 st.set_page_config(page_title="Gender Equality and Climate Action Dashboard", layout="wide")
 st.title("Gender Equality and Climate Action Dashboard")
 
@@ -50,7 +44,7 @@ if show_gii:
         labels={"Gender Inequality Index": "Gender Inequality Index"},
         color_continuous_scale=px.colors.sequential.Sunset
     )
-    fig_gii.update_layout(margin={"r":0,"t":50,"l":0,"b":0}, geo=dict(showframe=False, showcoastlines=True))
+    fig_gii.update_layout(margin={"r": 0, "t": 50, "l": 0, "b": 0}, geo=dict(showframe=False, showcoastlines=True))
     st.plotly_chart(fig_gii, use_container_width=True)
 
 # Choropleth map to show climate vulnerability index
@@ -64,7 +58,7 @@ if show_cvi:
         labels={"Climate Vulnerability Index": "Climate Vulnerability Index"},
         color_continuous_scale=px.colors.sequential.Plasma
     )
-    fig_cvi.update_layout(margin={"r":0,"t":50,"l":0,"b":0}, geo=dict(showframe=False, showcoastlines=True))
+    fig_cvi.update_layout(margin={"r": 0, "t": 50, "l": 0, "b": 0}, geo=dict(showframe=False, showcoastlines=True))
     st.plotly_chart(fig_cvi, use_container_width=True)
 
 # Time-series analysis for labor hours by women
@@ -83,7 +77,7 @@ fig.add_trace(go.Scatter(
 fig.update_layout(
     xaxis={'title': 'Year'},
     yaxis={'title': 'Labor Hours (in millions)'},
-    margin={"r":0,"t":50,"l":0,"b":0},
+    margin={"r": 0, "t": 50, "l": 0, "b": 0},
     plot_bgcolor='#F9F9F9'
 )
 st.plotly_chart(fig, use_container_width=True)
@@ -101,7 +95,7 @@ bar_fig = px.bar(
 )
 bar_fig.update_layout(
     yaxis=dict(range=[0, 2000]),
-    margin={"r":0,"t":50,"l":0,"b":0},
+    margin={"r": 0, "t": 50, "l": 0, "b": 0},
     plot_bgcolor='#F9F9F9'
 )
 st.plotly_chart(bar_fig, use_container_width=True)
@@ -118,7 +112,7 @@ vuln_fig = px.bar(
     color_continuous_scale='Viridis'
 )
 vuln_fig.update_layout(
-    margin={"r":0,"t":50,"l":0,"b":0},
+    margin={"r": 0, "t": 50, "l": 0, "b": 0},
     plot_bgcolor='#F9F9F9'
 )
 st.plotly_chart(vuln_fig, use_container_width=True)
@@ -147,7 +141,7 @@ comparison_fig = px.bar(
     color_discrete_map={'Gender Inequality Index': 'orange', 'Climate Vulnerability Index': 'purple'}
 )
 comparison_fig.update_layout(
-    margin={"r":0,"t":50,"l":0,"b":0},
+    margin={"r": 0, "t": 50, "l": 0, "b": 0},
     plot_bgcolor='#F9F9F9'
 )
 st.plotly_chart(comparison_fig, use_container_width=True)
