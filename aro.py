@@ -2,12 +2,20 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import urllib.request
+import ssl
+import certifi
+
+# Load datasets (using recommended datasets from NASA's SEDAC and other sources)
+ssl._create_default_https_context = ssl._create_unverified_context
+ssl_context = ssl.create_default_context(cafile=certifi.where())
 
 # Load gender inequality index data (for demonstration purposes using generic data)
 gii_url = "https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv"
-gii_df = pd.read_csv(gii_url)
+with urllib.request.urlopen(gii_url, context=ssl_context) as response:
+    gii_df = pd.read_csv(response)
 
-# Placeholder climate vulnerability data
+# Placeholder climate vulnerability data due to the original link being unavailable
 climate_vulnerability_data = {
     "ISO_A3": ["USA", "KEN", "IND", "BRA", "CHN"],
     "Risk": [7.5, 8.2, 6.7, 7.0, 8.0]
@@ -18,8 +26,8 @@ climate_vulnerability_df = pd.DataFrame(climate_vulnerability_data)
 df = pd.merge(gii_df, climate_vulnerability_df, left_on="CODE", right_on="ISO_A3", how="inner")
 
 # Filter the data to match the context of gender inequality and climate vulnerability
-df['Gender Inequality Index'] = df['GDP (BILLIONS)'] / 100  # Dummy calculation
-df['Climate Vulnerability Index'] = df['Risk']
+df['Gender Inequality Index'] = df['GDP (BILLIONS)'] / 100  # Dummy calculation to illustrate the concept
+df['Climate Vulnerability Index'] = df['Risk']  # Assuming column 'Risk' is related to climate vulnerability
 
 # Streamlit app layout
 st.set_page_config(page_title="Gender Equality and Climate Action Dashboard", layout="wide")
@@ -35,18 +43,38 @@ dropdown_options = df['COUNTRY'].unique()
 selected_country = st.sidebar.selectbox("Select a Country", dropdown_options)
 filtered_df = df[df['COUNTRY'] == selected_country] if selected_country else df
 
-# Choropleth map to show climate vulnerability
-fig = px.choropleth(
-    df,
-    locations="CODE",
-    color="Gender Inequality Index",
-    hover_name="COUNTRY",
-    title="Gender Inequality Index by Country",
-    labels={"Gender Inequality Index": "Gender Inequality Index"},
-    color_continuous_scale=px.colors.sequential.Sunset
-)
-fig.update_layout(margin={"r": 0, "t": 50, "l": 0, "b": 0}, geo=dict(showframe=False, showcoastlines=True))
-st.plotly_chart(fig, use_container_width=True)
+# Add more interactive elements in sidebar
+st.sidebar.markdown("### Filter Options")
+show_gii = st.sidebar.checkbox("Show Gender Inequality Index", True)
+show_cvi = st.sidebar.checkbox("Show Climate Vulnerability Index", True)
+
+# Choropleth map to show gender inequality index
+if show_gii:
+    fig_gii = px.choropleth(
+        df,
+        locations="CODE",
+        color="Gender Inequality Index",
+        hover_name="COUNTRY",
+        title="Gender Inequality Index by Country",
+        labels={"Gender Inequality Index": "Gender Inequality Index"},
+        color_continuous_scale=px.colors.sequential.Sunset
+    )
+    fig_gii.update_layout(margin={"r":0,"t":50,"l":0,"b":0}, geo=dict(showframe=False, showcoastlines=True))
+    st.plotly_chart(fig_gii, use_container_width=True)
+
+# Choropleth map to show climate vulnerability index
+if show_cvi:
+    fig_cvi = px.choropleth(
+        df,
+        locations="CODE",
+        color="Climate Vulnerability Index",
+        hover_name="COUNTRY",
+        title="Climate Vulnerability Index by Country",
+        labels={"Climate Vulnerability Index": "Climate Vulnerability Index"},
+        color_continuous_scale=px.colors.sequential.Plasma
+    )
+    fig_cvi.update_layout(margin={"r":0,"t":50,"l":0,"b":0}, geo=dict(showframe=False, showcoastlines=True))
+    st.plotly_chart(fig_cvi, use_container_width=True)
 
 # Time-series analysis for labor hours by women
 st.subheader(f"Increasing Labor Hours for Women Over Time - {selected_country}")
@@ -64,7 +92,7 @@ fig.add_trace(go.Scatter(
 fig.update_layout(
     xaxis={'title': 'Year'},
     yaxis={'title': 'Labor Hours (in millions)'},
-    margin={"r": 0, "t": 50, "l": 0, "b": 0},
+    margin={"r":0,"t":50,"l":0,"b":0},
     plot_bgcolor='#F9F9F9'
 )
 st.plotly_chart(fig, use_container_width=True)
@@ -77,11 +105,12 @@ bar_fig = px.bar(
     y='GDP (BILLIONS)',
     title='Economic Impact by Country',
     labels={'GDP (BILLIONS)': 'GDP (Billions)', 'COUNTRY': 'Country'},
-    color_discrete_sequence=['red']
+    color='GDP (BILLIONS)',
+    color_continuous_scale='Bluered'
 )
 bar_fig.update_layout(
     yaxis=dict(range=[0, 2000]),
-    margin={"r": 0, "t": 50, "l": 0, "b": 0},
+    margin={"r":0,"t":50,"l":0,"b":0},
     plot_bgcolor='#F9F9F9'
 )
 st.plotly_chart(bar_fig, use_container_width=True)
@@ -94,10 +123,11 @@ vuln_fig = px.bar(
     y='Climate Vulnerability Index',
     title='Climate Vulnerability Index by Country',
     labels={'Climate Vulnerability Index': 'Climate Vulnerability Index', 'COUNTRY': 'Country'},
-    color_discrete_sequence=['green']
+    color='Climate Vulnerability Index',
+    color_continuous_scale='Viridis'
 )
 vuln_fig.update_layout(
-    margin={"r": 0, "t": 50, "l": 0, "b": 0},
+    margin={"r":0,"t":50,"l":0,"b":0},
     plot_bgcolor='#F9F9F9'
 )
 st.plotly_chart(vuln_fig, use_container_width=True)
@@ -108,3 +138,29 @@ avg_gii = filtered_df['Gender Inequality Index'].mean()
 avg_cvi = filtered_df['Climate Vulnerability Index'].mean()
 st.sidebar.metric(label="Average Gender Inequality Index", value=f"{avg_gii:.2f}")
 st.sidebar.metric(label="Average Climate Vulnerability Index", value=f"{avg_cvi:.2f}")
+
+# Add country comparison section
+st.markdown("## Country Comparison")
+comparison_countries = st.multiselect("Select Countries to Compare", df['COUNTRY'].unique(), default=[selected_country])
+comparison_df = df[df['COUNTRY'].isin(comparison_countries)]
+
+# Comparison Bar Chart
+st.subheader("Comparison of Gender Inequality and Climate Vulnerability Indices")
+comparison_fig = px.bar(
+    comparison_df,
+    x='COUNTRY',
+    y=['Gender Inequality Index', 'Climate Vulnerability Index'],
+    barmode='group',
+    title='Comparison of Gender Inequality and Climate Vulnerability Indices by Country',
+    labels={'value': 'Index Value', 'COUNTRY': 'Country', 'variable': 'Index Type'},
+    color_discrete_map={'Gender Inequality Index': 'orange', 'Climate Vulnerability Index': 'purple'}
+)
+comparison_fig.update_layout(
+    margin={"r":0,"t":50,"l":0,"b":0},
+    plot_bgcolor='#F9F9F9'
+)
+st.plotly_chart(comparison_fig, use_container_width=True)
+
+# Conclusion
+st.markdown("### Conclusion")
+st.markdown("This dashboard provides insights into the intersection between gender inequality and climate vulnerability. By exploring country-specific data, we can identify regions where action is needed most, and compare performance across different metrics.")
