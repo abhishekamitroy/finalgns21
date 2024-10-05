@@ -4,14 +4,15 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 # Load datasets (using recommended datasets from NASA's SEDAC and other sources)
+# Replace the URLs below with paths to the actual datasets
 
-# Load gender inequality index data from NASA SEDAC (assuming CSV files are available from NASA SEDAC)
-gii_url = "https://sedac.ciesin.columbia.edu/downloads/data/undp-human-development-index/gender-inequality-index.csv"
-gii_df = pd.read_csv(gii_url)
+# Load gender inequality index data from NASA SEDAC
+gii_file_path = "gender_inequality_index.csv"  # Update with actual path to your dataset
+gii_df = pd.read_csv(gii_file_path)
 
 # Load climate vulnerability index data from NASA SEDAC
-climate_vulnerability_url = "https://sedac.ciesin.columbia.edu/downloads/data/climate-vulnerability-index/climate-vulnerability-index.csv"
-climate_vulnerability_df = pd.read_csv(climate_vulnerability_url)
+climate_vulnerability_file_path = "climate_vulnerability_index.csv"  # Update with actual path to your dataset
+climate_vulnerability_df = pd.read_csv(climate_vulnerability_file_path)
 
 # Merge datasets on country codes
 df = pd.merge(gii_df, climate_vulnerability_df, left_on="Country Code", right_on="Country Code", how="inner")
