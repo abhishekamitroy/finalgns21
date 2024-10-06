@@ -70,12 +70,12 @@ if uploaded_file is not None:
         template='plotly_dark',
         xaxis_tickangle=-45,
         hovermode='x unified',
-        font=dict(family='Roboto, sans-serif', color='#ffffff', size=28),
+        font=dict(family='Roboto, sans-serif', color='#ffffff', size=24),
         plot_bgcolor='#1f2c56',
         paper_bgcolor='#1f2c56',
         title_font=dict(size=32),
-        legend_font=dict(size=28),
-        coloraxis_colorbar=dict(title_font=dict(size=28), tickfont=dict(size=28))
+        legend_font=dict(size=26),
+        coloraxis_colorbar=dict(title_font=dict(size=28), tickfont=dict(size=24))
     )
 
     st.plotly_chart(fig_vulnerability, use_container_width=True)
