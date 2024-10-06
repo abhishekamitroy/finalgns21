@@ -103,7 +103,7 @@ if uploaded_file is not None:
         paper_bgcolor='#1f2c56',
         title_font=dict(size=28),
         legend_font=dict(size=20),
-        coloraxis_colorbar=dict(title_font=dict(size=22), tickfont=dict(size=18))
+        coloraxis_colorbar=dict(title_font=dict(size=24), tickfont=dict(size=20))
     )
 
     st.plotly_chart(fig_gender_inequality, use_container_width=True)
@@ -121,12 +121,12 @@ if uploaded_file is not None:
     fig_rural_access.update_layout(
         template='plotly_dark',
         geo=dict(showframe=False, showcoastlines=True),
-        font=dict(family='Roboto, sans-serif', color='#ffffff', size=16),
+        font=dict(family='Roboto, sans-serif', color='#ffffff', size=22),
         plot_bgcolor='#1f2c56',
         paper_bgcolor='#1f2c56',
         title_font=dict(size=24),
         legend_font=dict(size=16),
-        coloraxis_colorbar=dict(title_font=dict(size=18), tickfont=dict(size=14))
+        coloraxis_colorbar=dict(title_font=dict(size=22), tickfont=dict(size=18))
     )
 
     st.plotly_chart(fig_rural_access, use_container_width=True)
