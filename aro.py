@@ -73,7 +73,7 @@ if uploaded_file is not None:
         font=dict(family='Roboto, sans-serif', color='#ffffff', size=20),
         plot_bgcolor='#1f2c56',
         paper_bgcolor='#1f2c56',
-        title_font=dict(size=38),
+        title_font=dict(size=28),
         legend_font=dict(size=20),
         coloraxis_colorbar=dict(title_font=dict(size=24), tickfont=dict(size=20))
     )
