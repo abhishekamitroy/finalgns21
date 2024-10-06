@@ -1,23 +1,35 @@
-import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import streamlit as st
 
-# Load datasets (using recommended datasets from NASA's SEDAC and other sources)
+# Load datasets
+# Dataset 1: Rural Access Index from SEDAC (saved locally)
+rai_df = pd.read_csv("sdgi-9-1-1-rai-2023-national.csv")
 
-# Load gender inequality index data from NASA SEDAC (assuming CSV files are available from NASA SEDAC)
-gii_url = "https://sedac.ciesin.columbia.edu/downloads/data/undp-human-development-index/gender-inequality-index.csv"
-gii_df = pd.read_csv(gii_url)
+# Rename column for merging consistency
+rai_df.rename(columns={'NAME_0': 'Country', 'ISO3': 'Country Code', 'SDG911pct': 'Rural Access Index (RAI)'}, inplace=True)
 
-# Load climate vulnerability index data from NASA SEDAC
-climate_vulnerability_url = "https://sedac.ciesin.columbia.edu/downloads/data/climate-vulnerability-index/climate-vulnerability-index.csv"
-climate_vulnerability_df = pd.read_csv(climate_vulnerability_url)
+# Ensure the 'Country' column exists and remove unnecessary columns
+rai_df = rai_df[['Country', 'Rural Access Index (RAI)', 'Country Code']]
 
-# Merge datasets on country codes
-df = pd.merge(gii_df, climate_vulnerability_df, left_on="Country Code", right_on="Country Code", how="inner")
+# Dataset 2: Climate Vulnerability Index
+climate_vulnerability_data = {
+    "Country": ["Kenya", "India", "Brazil", "China", "USA"],
+    "Climate Vulnerability Index": [8.2, 6.7, 7.0, 8.0, 7.5]
+}
+climate_vulnerability_df = pd.DataFrame(climate_vulnerability_data)
 
-# Filter the data to match the context of gender inequality and climate vulnerability
-# Assume 'Gender Inequality Index' and 'Climate Vulnerability Index' are columns in the respective datasets
+# Dataset 3: Gender Inequality Index (Dummy Data for Example)
+gii_data = {
+    "Country": ["Kenya", "India", "Brazil", "China", "USA"],
+    "Gender Inequality Index": [0.55, 0.49, 0.42, 0.38, 0.27]
+}
+gii_df = pd.DataFrame(gii_data)
+
+# Merge datasets for easier comparison
+df = pd.merge(gii_df, climate_vulnerability_df, on="Country")
+df = pd.merge(df, rai_df, on="Country", how="inner")
 
 # Streamlit app layout
 st.set_page_config(page_title="Gender Equality and Climate Action Dashboard", layout="wide")
@@ -25,121 +37,105 @@ st.title("Gender Equality and Climate Action Dashboard")
 
 st.markdown("""
 This dashboard showcases the relationship between gender inequality and climate change vulnerability.
-Below, you can view various visualizations for all countries at once.
+Select a country from the dropdown menu to view more detailed data.
 """)
 
-# Choropleth map to show gender inequality index
-fig_gii = px.choropleth(
-    df,
-    locations="Country Code",
-    color="Gender Inequality Index",
-    hover_name="Country Name",
-    title="Gender Inequality Index by Country",
-    labels={"Gender Inequality Index": "Gender Inequality Index"},
-    color_continuous_scale=px.colors.sequential.Sunset
-)
-fig_gii.update_layout(margin={"r":0,"t":50,"l":0,"b":0}, geo=dict(showframe=False, showcoastlines=True))
-st.plotly_chart(fig_gii, use_container_width=True)
+# Sidebar for country selection
+selected_country = st.sidebar.selectbox("Select a Country", df['Country'].unique())
+selected_metric = st.sidebar.radio("Select Metric to Highlight:", [
+    'Climate Vulnerability Index',
+    'Gender Inequality Index',
+    'Rural Access Index (RAI)'
+])
 
-# Choropleth map to show climate vulnerability index
-fig_cvi = px.choropleth(
+# Plot 1: Climate Vulnerability Index by Country
+fig_vulnerability = px.bar(
     df,
-    locations="Country Code",
-    color="Climate Vulnerability Index",
-    hover_name="Country Name",
-    title="Climate Vulnerability Index by Country",
-    labels={"Climate Vulnerability Index": "Climate Vulnerability Index"},
-    color_continuous_scale=px.colors.sequential.Plasma
-)
-fig_cvi.update_layout(margin={"r":0,"t":50,"l":0,"b":0}, geo=dict(showframe=False, showcoastlines=True))
-st.plotly_chart(fig_cvi, use_container_width=True)
-
-# Time-series analysis for labor hours by women (placeholder for all countries)
-st.subheader("Increasing Labor Hours for Women Over Time (Placeholder Data)")
-years = ['2018', '2019', '2020', '2021', '2022']
-fig = go.Figure()
-for country in df['Country Name'].unique():
-    labor_hours = [2, 3, 4, 5, 7]  # Placeholder data
-    fig.add_trace(go.Scatter(
-        x=years,
-        y=labor_hours,
-        mode='lines+markers',
-        name=country,
-        line=dict(width=2),
-        marker=dict(size=6)
-    ))
-fig.update_layout(
-    xaxis={'title': 'Year'},
-    yaxis={'title': 'Labor Hours (in millions)'},
-    margin={"r":0,"t":50,"l":0,"b":0},
-    plot_bgcolor='#F9F9F9'
-)
-st.plotly_chart(fig, use_container_width=True)
-
-# Bar chart for economic impact for all countries
-st.subheader("Economic Impact by Country")
-bar_fig = px.bar(
-    df,
-    x='Country Name',
-    y='GDP (Billions)',
-    title='Economic Impact by Country',
-    labels={'GDP (Billions)': 'GDP (Billions)', 'Country Name': 'Country'},
-    color='GDP (Billions)',
-    color_continuous_scale='Bluered'
-)
-bar_fig.update_layout(
-    yaxis=dict(range=[0, 2000]),
-    margin={"r":0,"t":50,"l":0,"b":0},
-    plot_bgcolor='#F9F9F9'
-)
-st.plotly_chart(bar_fig, use_container_width=True)
-
-# Climate Vulnerability Index chart for all countries
-st.subheader("Climate Vulnerability Index by Country")
-vuln_fig = px.bar(
-    df,
-    x='Country Name',
+    x='Country',
     y='Climate Vulnerability Index',
     title='Climate Vulnerability Index by Country',
-    labels={'Climate Vulnerability Index': 'Climate Vulnerability Index', 'Country Name': 'Country'},
+    labels={'Climate Vulnerability Index': 'Climate Vulnerability Index', 'Country': 'Country'},
     color='Climate Vulnerability Index',
     color_continuous_scale='Viridis'
 )
-vuln_fig.update_layout(
-    margin={"r":0,"t":50,"l":0,"b":0},
-    plot_bgcolor='#F9F9F9'
+fig_vulnerability.update_traces(
+    marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']]),
+    selector=dict(type='bar')
 )
-st.plotly_chart(vuln_fig, use_container_width=True)
+fig_vulnerability.update_layout(template='plotly_dark', xaxis_tickangle=-45, hovermode='x unified', font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
 
-# Key Performance Indicators (KPIs) for all countries
-st.sidebar.subheader("Key Performance Indicators (Global)")
-avg_gii = df['Gender Inequality Index'].mean()
-avg_cvi = df['Climate Vulnerability Index'].mean()
-st.sidebar.metric(label="Average Gender Inequality Index", value=f"{avg_gii:.2f}")
-st.sidebar.metric(label="Average Climate Vulnerability Index", value=f"{avg_cvi:.2f}")
+st.plotly_chart(fig_vulnerability, use_container_width=True)
 
-# Add country comparison section
-st.markdown("## Country Comparison")
-comparison_countries = st.multiselect("Select Countries to Compare", df['Country Name'].unique(), default=df['Country Name'].unique())
-comparison_df = df[df['Country Name'].isin(comparison_countries)]
-
-# Comparison Bar Chart
-st.subheader("Comparison of Gender Inequality and Climate Vulnerability Indices")
-comparison_fig = px.bar(
-    comparison_df,
-    x='Country Name',
-    y=['Gender Inequality Index', 'Climate Vulnerability Index'],
-    barmode='group',
-    title='Comparison of Gender Inequality and Climate Vulnerability Indices by Country',
-    labels={'value': 'Index Value', 'Country Name': 'Country', 'variable': 'Index Type'},
-    color_discrete_map={'Gender Inequality Index': 'orange', 'Climate Vulnerability Index': 'purple'}
+# Plot 2: Gender Inequality Index by Country
+fig_gender_inequality = px.bar(
+    df,
+    x='Country',
+    y='Gender Inequality Index',
+    title='Gender Inequality Index by Country',
+    labels={'Gender Inequality Index': 'Gender Inequality Index', 'Country': 'Country'},
+    color='Gender Inequality Index',
+    color_continuous_scale='Reds'
 )
-comparison_fig.update_layout(
-    margin={"r":0,"t":50,"l":0,"b":0},
-    plot_bgcolor='#F9F9F9'
+fig_gender_inequality.update_traces(
+    marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']]),
+    selector=dict(type='bar')
 )
-st.plotly_chart(comparison_fig, use_container_width=True)
+fig_gender_inequality.update_layout(template='plotly_dark', xaxis_tickangle=-45, hovermode='x unified', font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
 
-# Conclusion
-st.markdown("### Conclusion")
-st.markdown("This dashboard provides insights into the intersection between gender inequality and climate vulnerability. By exploring country-specific data, we can identify regions where action is needed most, and compare performance across different metrics.")
+st.plotly_chart(fig_gender_inequality, use_container_width=True)
+
+# Plot 3: Rural Access Index by Country (Percentage of Population with Access to Roads)
+fig_rural_access = px.choropleth(
+    df,
+    locations="Country Code",
+    color=selected_metric,
+    hover_name="Country",
+    title=f"{selected_metric} by Country",
+    labels={selected_metric: selected_metric},
+    color_continuous_scale=px.colors.sequential.Plasma
+)
+fig_rural_access.update_layout(template='plotly_dark', geo=dict(showframe=False, showcoastlines=True), font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
+
+st.plotly_chart(fig_rural_access, use_container_width=True)
+
+# Plot 4: Relationship between Gender Inequality and Climate Vulnerability
+fig_relationship = px.scatter(
+    df,
+    x='Gender Inequality Index',
+    y='Climate Vulnerability Index',
+    color='Country',
+    title='Relationship between Gender Inequality Index and Climate Vulnerability Index',
+    labels={'Gender Inequality Index': 'Gender Inequality Index', 'Climate Vulnerability Index': 'Climate Vulnerability Index'},
+    size_max=15,
+    color_continuous_scale='Plasma'
+)
+fig_relationship.update_traces(marker=dict(size=12, opacity=0.8, line=dict(width=2, color='DarkSlateGrey')))
+fig_relationship.update_layout(template='plotly_dark', hovermode='closest', font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
+
+st.plotly_chart(fig_relationship, use_container_width=True)
+
+# Placeholder data: Time spent collecting water and distance
+water_collection_data = {
+    "Country": ["Kenya", "India", "Brazil", "China", "USA"],
+    "Time Spent Collecting Water (hrs/week)": [15, 12, 10, 8, 6],
+    "Average Distance to Water Source (km)": [4.5, 3.8, 2.9, 2.5, 1.8]
+}
+water_df = pd.DataFrame(water_collection_data)
+
+# Scatter Plot for Water Collection
+fig_water_collection = px.scatter(
+    water_df,
+    x='Average Distance to Water Source (km)',
+    y='Time Spent Collecting Water (hrs/week)',
+    color='Country',
+    size='Time Spent Collecting Water (hrs/week)',
+    title='Water Collection Efforts by Country',
+    labels={
+        'Average Distance to Water Source (km)': 'Average Distance to Water Source (km)',
+        'Time Spent Collecting Water (hrs/week)': 'Time Spent Collecting Water (hrs/week)'
+    }
+)
+fig_water_collection.update_traces(marker=dict(symbol='diamond', size=15, opacity=0.7))
+fig_water_collection.update_layout(template='plotly_dark', hovermode='closest', font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
+
+st.plotly_chart(fig_water_collection, use_container_width=True)
