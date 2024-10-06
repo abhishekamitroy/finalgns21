@@ -74,8 +74,8 @@ if uploaded_file is not None:
         plot_bgcolor='#1f2c56',
         paper_bgcolor='#1f2c56',
         title_font=dict(size=32),
-        legend_font=dict(size=26),
-        coloraxis_colorbar=dict(title_font=dict(size=28), tickfont=dict(size=24))
+        legend_font=dict(size=28),
+        coloraxis_colorbar=dict(title_font=dict(size=28), tickfont=dict(size=28))
     )
 
     st.plotly_chart(fig_vulnerability, use_container_width=True)
