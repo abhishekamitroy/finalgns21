@@ -7,7 +7,6 @@ import streamlit as st
 st.set_page_config(page_title="Gender Equality and Climate Action Dashboard", layout="wide")
 st.title("Gender Equality and Climate Action Dashboard")
 
-
 st.markdown("""
 This dashboard showcases the relationship between gender inequality and climate change vulnerability.
 Upload the dataset and select a country from the dropdown menu to view more detailed data.
@@ -22,7 +21,8 @@ if uploaded_file is not None:
     rai_df = pd.read_csv(uploaded_file)
 
     # Rename column for merging consistency
-    rai_df.rename(columns={'NAME_0': 'Country', 'ISO3': 'Country Code', 'SDG911pct': 'Rural Access Index (RAI)'}, inplace=True)
+    rai_df.rename(columns={'NAME_0': 'Country', 'ISO3': 'Country Code', 'SDG911pct': 'Rural Access Index (RAI)'},
+                  inplace=True)
 
     # Ensure the 'Country' column exists and remove unnecessary columns
     rai_df = rai_df[['Country', 'Rural Access Index (RAI)', 'Country Code']]
@@ -64,10 +64,21 @@ if uploaded_file is not None:
         color_continuous_scale='Viridis'
     )
     fig_vulnerability.update_traces(
-        marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']]),
+        marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']],
+                    line=dict(width=2)),
         selector=dict(type='bar')
     )
-    fig_vulnerability.update_layout(template='plotly_dark', xaxis_tickangle=-45, hovermode='x unified', font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
+    fig_vulnerability.update_layout(
+        template='plotly_dark',
+        xaxis_tickangle=-45,
+        hovermode='x unified',
+        font=dict(family='Roboto, sans-serif', color='#ffffff', size=16),
+        plot_bgcolor='#1f2c56',
+        paper_bgcolor='#1f2c56',
+        title_font=dict(size=24),
+        legend_font=dict(size=16),
+        coloraxis_colorbar=dict(title_font=dict(size=18), tickfont=dict(size=14))
+    )
 
     st.plotly_chart(fig_vulnerability, use_container_width=True)
 
@@ -82,10 +93,21 @@ if uploaded_file is not None:
         color_continuous_scale='Reds'
     )
     fig_gender_inequality.update_traces(
-        marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']]),
+        marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']],
+                    line=dict(width=2)),
         selector=dict(type='bar')
     )
-    fig_gender_inequality.update_layout(template='plotly_dark', xaxis_tickangle=-45, hovermode='x unified', font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
+    fig_gender_inequality.update_layout(
+        template='plotly_dark',
+        xaxis_tickangle=-45,
+        hovermode='x unified',
+        font=dict(family='Roboto, sans-serif', color='#ffffff', size=16),
+        plot_bgcolor='#1f2c56',
+        paper_bgcolor='#1f2c56',
+        title_font=dict(size=24),
+        legend_font=dict(size=16),
+        coloraxis_colorbar=dict(title_font=dict(size=18), tickfont=dict(size=14))
+    )
 
     st.plotly_chart(fig_gender_inequality, use_container_width=True)
 
@@ -99,7 +121,16 @@ if uploaded_file is not None:
         labels={selected_metric: selected_metric},
         color_continuous_scale=px.colors.sequential.Plasma
     )
-    fig_rural_access.update_layout(template='plotly_dark', geo=dict(showframe=False, showcoastlines=True), font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
+    fig_rural_access.update_layout(
+        template='plotly_dark',
+        geo=dict(showframe=False, showcoastlines=True),
+        font=dict(family='Roboto, sans-serif', color='#ffffff', size=16),
+        plot_bgcolor='#1f2c56',
+        paper_bgcolor='#1f2c56',
+        title_font=dict(size=24),
+        legend_font=dict(size=16),
+        coloraxis_colorbar=dict(title_font=dict(size=18), tickfont=dict(size=14))
+    )
 
     st.plotly_chart(fig_rural_access, use_container_width=True)
 
@@ -110,12 +141,22 @@ if uploaded_file is not None:
         y='Climate Vulnerability Index',
         color='Country',
         title='Relationship between Gender Inequality Index and Climate Vulnerability Index',
-        labels={'Gender Inequality Index': 'Gender Inequality Index', 'Climate Vulnerability Index': 'Climate Vulnerability Index'},
+        labels={'Gender Inequality Index': 'Gender Inequality Index',
+                'Climate Vulnerability Index': 'Climate Vulnerability Index'},
         size_max=15,
         color_continuous_scale='Plasma'
     )
-    fig_relationship.update_traces(marker=dict(size=12, opacity=0.8, line=dict(width=2, color='DarkSlateGrey')))
-    fig_relationship.update_layout(template='plotly_dark', hovermode='closest', font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
+    fig_relationship.update_traces(marker=dict(size=15, opacity=0.8, line=dict(width=3, color='DarkSlateGrey')))
+    fig_relationship.update_layout(
+        template='plotly_dark',
+        hovermode='closest',
+        font=dict(family='Roboto, sans-serif', color='#ffffff', size=16),
+        plot_bgcolor='#1f2c56',
+        paper_bgcolor='#1f2c56',
+        title_font=dict(size=24),
+        legend_font=dict(size=16),
+        coloraxis_colorbar=dict(title_font=dict(size=18), tickfont=dict(size=14))
+    )
 
     st.plotly_chart(fig_relationship, use_container_width=True)
 
@@ -140,9 +181,17 @@ if uploaded_file is not None:
             'Time Spent Collecting Water (hrs/week)': 'Time Spent Collecting Water (hrs/week)'
         }
     )
-    fig_water_collection.update_traces(marker=dict(symbol='diamond', size=15, opacity=0.7))
-    fig_water_collection.update_layout(template='plotly_dark', hovermode='closest', font=dict(family='Roboto, sans-serif', color='#ffffff'), plot_bgcolor='#1f2c56', paper_bgcolor='#1f2c56')
+    fig_water_collection.update_traces(marker=dict(symbol='diamond', size=20, opacity=0.8))
+    fig_water_collection.update_layout(
+        template='plotly_dark',
+        hovermode='closest',
+        font=dict(family='Roboto, sans-serif', color='#ffffff', size=16),
+        plot_bgcolor='#1f2c56',
+        paper_bgcolor='#1f2c56',
+        title_font=dict(size=24),
+        legend_font=dict(size=16),
+        coloraxis_colorbar=dict(title_font=dict(size=18), tickfont=dict(size=14))
+    )
 
     st.plotly_chart(fig_water_collection, use_container_width=True)
 else:
-    st.warning("Please upload the Rural Access Index CSV file to proceed.")
