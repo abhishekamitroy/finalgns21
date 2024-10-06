@@ -60,7 +60,7 @@ if uploaded_file is not None:
         title='Climate Vulnerability Index by Country',
         labels={'Climate Vulnerability Index': 'Climate Vulnerability Index', 'Country': 'Country'},
         color='Climate Vulnerability Index',
-        color_continuous_scale='Viridis'
+        color_continuous_scale=px.colors.sequential.Blues
     )
     fig_vulnerability.update_traces(
         marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']], line=dict(width=2)),
@@ -70,12 +70,12 @@ if uploaded_file is not None:
         template='plotly_dark',
         xaxis_tickangle=-45,
         hovermode='x unified',
-        font=dict(family='Roboto, sans-serif', color='#ffffff', size=16),
+        font=dict(family='Roboto, sans-serif', color='#ffffff', size=18),
         plot_bgcolor='#1f2c56',
         paper_bgcolor='#1f2c56',
-        title_font=dict(size=24),
-        legend_font=dict(size=16),
-        coloraxis_colorbar=dict(title_font=dict(size=18), tickfont=dict(size=14))
+        title_font=dict(size=26),
+        legend_font=dict(size=18),
+        coloraxis_colorbar=dict(title_font=dict(size=20), tickfont=dict(size=16))
     )
 
     st.plotly_chart(fig_vulnerability, use_container_width=True)
@@ -88,7 +88,7 @@ if uploaded_file is not None:
         title='Gender Inequality Index by Country',
         labels={'Gender Inequality Index': 'Gender Inequality Index', 'Country': 'Country'},
         color='Gender Inequality Index',
-        color_continuous_scale='Reds'
+        color_continuous_scale=px.colors.sequential.Peach
     )
     fig_gender_inequality.update_traces(
         marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']], line=dict(width=2)),
