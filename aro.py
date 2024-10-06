@@ -21,8 +21,7 @@ if uploaded_file is not None:
     rai_df = pd.read_csv(uploaded_file)
 
     # Rename column for merging consistency
-    rai_df.rename(columns={'NAME_0': 'Country', 'ISO3': 'Country Code', 'SDG911pct': 'Rural Access Index (RAI)'},
-                  inplace=True)
+    rai_df.rename(columns={'NAME_0': 'Country', 'ISO3': 'Country Code', 'SDG911pct': 'Rural Access Index (RAI)'}, inplace=True)
 
     # Ensure the 'Country' column exists and remove unnecessary columns
     rai_df = rai_df[['Country', 'Rural Access Index (RAI)', 'Country Code']]
@@ -64,8 +63,7 @@ if uploaded_file is not None:
         color_continuous_scale='Viridis'
     )
     fig_vulnerability.update_traces(
-        marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']],
-                    line=dict(width=2)),
+        marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']], line=dict(width=2)),
         selector=dict(type='bar')
     )
     fig_vulnerability.update_layout(
@@ -93,8 +91,7 @@ if uploaded_file is not None:
         color_continuous_scale='Reds'
     )
     fig_gender_inequality.update_traces(
-        marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']],
-                    line=dict(width=2)),
+        marker=dict(opacity=[0.3 if country != selected_country else 1.0 for country in df['Country']], line=dict(width=2)),
         selector=dict(type='bar')
     )
     fig_gender_inequality.update_layout(
@@ -141,8 +138,7 @@ if uploaded_file is not None:
         y='Climate Vulnerability Index',
         color='Country',
         title='Relationship between Gender Inequality Index and Climate Vulnerability Index',
-        labels={'Gender Inequality Index': 'Gender Inequality Index',
-                'Climate Vulnerability Index': 'Climate Vulnerability Index'},
+        labels={'Gender Inequality Index': 'Gender Inequality Index', 'Climate Vulnerability Index': 'Climate Vulnerability Index'},
         size_max=15,
         color_continuous_scale='Plasma'
     )
@@ -195,3 +191,4 @@ if uploaded_file is not None:
 
     st.plotly_chart(fig_water_collection, use_container_width=True)
 else:
+    st.warning("Please upload the Rural Access Index CSV file to proceed.")
