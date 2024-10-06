@@ -7,6 +7,7 @@ import streamlit as st
 st.set_page_config(page_title="Gender Equality and Climate Action Dashboard", layout="wide")
 st.title("Gender Equality and Climate Action Dashboard")
 
+
 st.markdown("""
 This dashboard showcases the relationship between gender inequality and climate change vulnerability.
 Upload the dataset and select a country from the dropdown menu to view more detailed data.
